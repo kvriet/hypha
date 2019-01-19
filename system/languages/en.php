@@ -133,7 +133,8 @@
 		"edit-title" => "edit title",
 		"edit-html" => "edit html",
 		"select-theme" => "select theme",
-		"edit-css-of-theme" => "edit css of theme",
+		"edit-css-of-theme" => "edit css of theme \"[[theme]]\"",
+		"view-css-of-theme" => "view css of theme \"[[theme]]\"",
 		"edit-header" => "edit header",
 		"edit-footer" => "edit footer",
 		"edit-menu" => "edit menu",
@@ -191,6 +192,7 @@
 		"missing-arguments" => "missing arguments",
 		"archive" => "archive",
 		"sure-to-delete" => "Are you sure you want to delete this page",
+		'cannot-edit-default-theme-explanation' => 'The default theme cannot be edited. At the <a href="[[link]]">theme selection page</a>, the default theme can be copied and activated, that copy can be edited.',
 
 		// textpage
 		"datatype.name.textpage" => 'web page',

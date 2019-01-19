@@ -133,7 +133,8 @@
 		"edit-title" => "bewerk titel",
 		"edit-html" => "bewerk html",
 		"select-theme" => "kies theme",
-		"edit-css-of-theme" => "bewerk css van thema",
+		"edit-css-of-theme" => "bewerk css van thema \"[[theme]]\"",
+		"view-css-of-theme" => "bekijk css van thema \"[[theme]]\"",
 		"edit-header" => "bewerk header",
 		"edit-footer" => "bewerk footer",
 		"edit-menu" => "bewerk menu",
@@ -191,6 +192,7 @@
 		"missing-arguments" => "argumenten ontbreken",
 		"archive" => "archief",
 		"sure-to-delete" => "Weet je zeker dat je deze pagina wilt verwijderen",
+		'cannot-edit-default-theme-explanation' => 'Het standaard thema kan niet bewerkt worden. Op de <a href="[[link]]">thema keuzepagina</a>, is het mogelijke het standaard thema the kopiëren en activeren, de kopie kan wel bewerkt worden.',
 
 		// textpage
 		"datatype.name.textpage" => "webpagina",

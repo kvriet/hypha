@@ -320,13 +320,23 @@
 
 		function editStyles() {
 			if (isAdmin()) {
-				$this->html->writeToElement('pagename', __('edit-css-of-theme') . ' "' . Hypha::$data->theme . '"');
 				$this->html->writeToElement('pageCommands', makeButton(__('cancel'), makeAction('settings', '', '')));
-				$this->html->writeToElement('pageCommands', makeButton(__('save'), makeAction('settings', 'settingsSaveStyles', '')));
-				ob_start();
+				if (Hypha::$data->theme === 'default') {
+					global $hyphaUrl;
+					$this->html->writeToElement('pagename', __('view-css-of-theme', ['theme' => Hypha::$data->theme]));
+					$this->html->writeToElement('main', __('cannot-edit-default-theme-explanation', ['link' => $hyphaUrl.'settings/theme']));
+					ob_start();
 ?>
-<textarea class="section" name="editCss" id="editCss" cols="100%" rows="18" wrap="off"><?=Hypha::$data->css->read()?></textarea>
+<blockquote><pre><code><?=Hypha::$data->css->read();?></code></pre></blockquote>
 <?php
+				} else {
+					$this->html->writeToElement('pagename', __('edit-css-of-theme', ['theme' => Hypha::$data->theme]));
+					$this->html->writeToElement('pageCommands', makeButton(__('save'), makeAction('settings', 'settingsSaveStyles', '')));
+					ob_start();
+?>
+<textarea class="section" name="editCss" id="editCss" cols="100%" rows="18" wrap="off"><?=Hypha::$data->css->read();?></textarea>
+<?php
+				}
 				$this->html->writeToElement('main', ob_get_clean());
 			}
 		}
