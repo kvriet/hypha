@@ -21,6 +21,8 @@
 			registerCommandCallback('settingsSaveHyphaSettings', Array($this, 'saveHyphaSettings'));
 			registerCommandCallback('settingsSaveMarkup', Array($this, 'saveMarkup'));
 			registerCommandCallback('settingsSaveTheme', Array($this, 'saveTheme'));
+			registerCommandCallback('settingsCopyTheme', Array($this, 'copyTheme'));
+			registerCommandCallback('settingsCopyThemeAndActivate', Array($this, 'copyThemeAndActivate'));
 			registerCommandCallback('settingsSaveStyles', Array($this, 'saveStyles'));
 			registerCommandCallback('settingsSaveSiteElements', Array($this, 'saveSiteElements'));
 			registerCommandCallback('settingsSaveMenu', Array($this, 'saveMenu'));
@@ -295,16 +297,29 @@
 			if (isAdmin()) {
 				ob_start();
 				echo '<select name="editTheme" id="editTheme">';
-				foreach (scandir('data/themes/') as $theme) {
-					if ('.' !== $theme[0]) {
-						echo '<option' . (Hypha::$data->theme === $theme ? ' selected' : '') . '>' . htmlspecialchars($theme) . '</option>';
-					}
+				$themes = $this->getThemes();
+				foreach ($themes as $theme) {
+					echo '<option' . (Hypha::$data->theme === $theme ? ' selected' : '') . '>' . htmlspecialchars($theme) . '</option>';
 				}
 				echo '</select>';
 				$this->html->writeToElement('main', ob_get_clean());
 				$this->html->writeToElement('pagename', __('select-theme'));
 				$this->html->writeToElement('pageCommands', makeButton(__('cancel'), makeAction('settings', '', '')));
 				$this->html->writeToElement('pageCommands', makeButton(__('save'), makeAction('settings', 'settingsSaveTheme', '')));
+
+				$this->html->writeToElement('main', '<div id="copy-theme"></div>');
+				$this->html->writeToElement('copy-theme', '<h2>'.__('copy-theme').'</h2>');
+				ob_start();
+				echo '<div class="theme-options">' . "\n";
+				foreach ($themes as $theme) {
+					$value = htmlspecialchars($theme);
+					echo '<div class="theme-option"><input type="radio" id="'.$value.'" name="srcTheme" value="'.$value.'"' . (Hypha::$data->theme === $theme ? ' checked' : '') . '><label for="'.$value.'">'.$theme.'</label></div>' . "\n";
+				}
+				echo '</div>' . "\n";
+				echo '<div><input type="text" name="dstTheme" placeholder="'.__('new-theme-name').'"></div>';
+				echo makeButton(__('copy-theme'), makeAction('settings/theme', 'settingsCopyTheme', ''));
+				echo makeButton(__('copy-theme-and-activate'), makeAction('settings/theme', 'settingsCopyThemeAndActivate', ''));
+				$this->html->writeToElement('copy-theme', ob_get_clean());
 			}
 		}
 
@@ -316,6 +331,109 @@
 				$hyphaXml->saveAndUnlock();
 			}
 			return 'reload';
+		}
+
+		function copyTheme($argument) {
+			if (isAdmin()) {
+				$errors = $this->validateAndCopyTheme();
+				foreach ($errors as $error) notify('error', $error);
+				if (empty($errors)) {
+					notify('success', __('copied-theme-successful'));
+				}
+			}
+			return 'reload';
+		}
+
+		function copyThemeAndActivate($argument) {
+			if (isAdmin()) {
+				$errors = $this->validateAndCopyTheme();
+				foreach ($errors as $error) notify('error', $error);
+				if (empty($errors)) {
+					global $hyphaXml;
+					$hyphaXml->lockAndReload();
+					hypha_setTheme($this->toSafeDir($_POST['dstTheme']));
+					$hyphaXml->saveAndUnlock();
+					notify('success', __('copied-theme-successful'));
+				}
+			}
+			return 'reload';
+		}
+
+		function validateAndCopyTheme() {
+			// get list of existing themes
+			$themes = $this->getThemes();
+
+			$errors = [];
+			// validate dstTheme
+			$dstTheme = isset($_POST['dstTheme']) && '' != $_POST['dstTheme'] ? $this->toSafeDir($_POST['dstTheme']) : null;
+			if (null === $dstTheme) {
+				$errors[] = __('destination-theme-name-required');
+			} elseif (in_array($dstTheme, $themes)) {
+				$errors[] = __('destination-theme-name-already-taken');
+			}
+
+			// validate srcTheme
+			if (!isset($_POST['srcTheme']) || '' == $_POST['srcTheme']) {
+				$errors[] = __('source-theme-name-required');
+			} elseif (!in_array($_POST['srcTheme'], $themes)) {
+				$errors[] = __('source-theme-name-not-found');
+			}
+
+			// return the errors if there are any
+			if (empty($errors)) {
+				// create an anonymous function to cursively copy the theme directory
+				$dirCopy = function ($src, $dst) use (&$dirCopy) {
+					mkdir($dst, 0744);
+					foreach (scandir($src) as $file) {
+						if (in_array($file, ['.', '..'])) {
+							continue;
+						}
+						if (is_dir($src . '/' . $file)) {
+							$dirCopy($src . '/' . $file, $dst . '/' . $file);
+						} else {
+							copy($src . '/' . $file, $dst . '/' . $file);
+						}
+					}
+				};
+				$dirCopy('data/themes/' . $_POST['srcTheme'], 'data/themes/' . $dstTheme);
+			}
+
+			return $errors;
+		}
+
+		/**
+		 * Convert given directory name into a safe directory name for url and file system.
+		 *
+		 * @param string $dir
+		 * @return string
+		 */
+		function toSafeDir($dir) {
+			// Strip HTML Tags
+			$dir = strip_tags($dir);
+			// Clean up things like &amp;
+			$dir = html_entity_decode($dir);
+			// Strip out any url-encoded stuff
+			$dir = urldecode($dir);
+			// Replace non-AlNum characters with space
+			$dir = preg_replace('/[^A-Za-z0-9]/', ' ', $dir);
+			// Replace Multiple spaces with single space
+			$dir = preg_replace('/ +/', ' ', $dir);
+			// Trim the string of leading/trailing space
+			$dir = trim($dir);
+			// Replace spaces with dashes
+			$dir = preg_replace('/ /', '-', $dir);
+
+			return $dir;
+		}
+
+		function getThemes() {
+			$themes = [];
+			foreach (scandir('data/themes/') as $theme) {
+				if (!in_array($theme, ['.', '..'])) {
+					$themes[] = $theme;
+				}
+			}
+			return $themes;
 		}
 
 		function editStyles() {

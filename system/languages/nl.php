@@ -194,6 +194,16 @@
 		"sure-to-delete" => "Weet je zeker dat je deze pagina wilt verwijderen",
 		'cannot-edit-default-theme-explanation' => 'Het standaard thema kan niet bewerkt worden. Op de <a href="[[link]]">thema keuzepagina</a>, is het mogelijke het standaard thema the kopiëren en activeren, de kopie kan wel bewerkt worden.',
 
+		// settings copy theme
+		'copy-theme' => 'kopieer thema',
+		'new-theme-name' => 'naam van nieuwe thema',
+		'copy-theme-and-activate' => 'kopieer thema en activeer het',
+		'copied-theme-successful' => 'thema is succesvol gekopieerd',
+		'destination-theme-name-required' => 'naam van nieuwe thema is verplicht',
+		'destination-theme-name-already-taken' => 'naam van nieuwe thema is al in gebruik',
+		'source-theme-name-required' => 'naam van bron thema is verplicht',
+		'source-theme-name-not-found' => 'naam van bron thema is niet gevonden',
+
 		// textpage
 		"datatype.name.textpage" => "webpagina",
 

@@ -194,6 +194,16 @@
 		"sure-to-delete" => "Are you sure you want to delete this page",
 		'cannot-edit-default-theme-explanation' => 'The default theme cannot be edited. At the <a href="[[link]]">theme selection page</a>, the default theme can be copied and activated, that copy can be edited.',
 
+		// settings copy theme
+		'copy-theme' => 'copy theme',
+		'new-theme-name' => 'name of new theme',
+		'copy-theme-and-activate' => 'copy theme and activate it',
+		'copied-theme-successful' => 'copied theme successfully',
+		'destination-theme-name-required' => 'name of new theme is required',
+		'destination-theme-name-already-taken' => 'name of new theme is already in use',
+		'source-theme-name-required' => 'name of source theme is required',
+		'source-theme-name-not-found' => 'name of source theme could not be found',
+
 		// textpage
 		"datatype.name.textpage" => 'web page',
 
