@@ -177,7 +177,11 @@
 	*/
 	function hypha_getTheme() {
 		global $hyphaXml;
-		$theme = $hyphaXml->documentElement->getAttribute('theme');
+		if (isset($_SESSION['previewTheme'])) {
+			$theme = $_SESSION['previewTheme'];
+		} else {
+			$theme = $hyphaXml->documentElement->getAttribute('theme');
+		}
 		if ('' === $theme) {
 			$theme = 'default';
 		}

@@ -23,6 +23,7 @@
 			registerCommandCallback('settingsSaveTheme', Array($this, 'saveTheme'));
 			registerCommandCallback('settingsCopyTheme', Array($this, 'copyTheme'));
 			registerCommandCallback('settingsCopyThemeAndActivate', Array($this, 'copyThemeAndActivate'));
+			registerCommandCallback('settingsPreviewTheme', Array($this, 'previewTheme'));
 			registerCommandCallback('settingsSaveStyles', Array($this, 'saveStyles'));
 			registerCommandCallback('settingsSaveSiteElements', Array($this, 'saveSiteElements'));
 			registerCommandCallback('settingsSaveMenu', Array($this, 'saveMenu'));
@@ -320,6 +321,18 @@
 				echo makeButton(__('copy-theme'), makeAction('settings/theme', 'settingsCopyTheme', ''));
 				echo makeButton(__('copy-theme-and-activate'), makeAction('settings/theme', 'settingsCopyThemeAndActivate', ''));
 				$this->html->writeToElement('copy-theme', ob_get_clean());
+
+				$this->html->writeToElement('main', '<div id="preview-theme"></div>');
+				$this->html->writeToElement('copy-theme', '<h2>'.__('preview-theme').'</h2>');
+				ob_start();
+				echo '<select name="previewTheme" id="previewTheme">';
+				$themes = $this->getThemes();
+				foreach ($themes as $theme) {
+					echo '<option>' . htmlspecialchars($theme) . '</option>';
+				}
+				echo '</select>';
+				echo makeButton(__('preview-theme'), makeAction('settings/theme', 'settingsPreviewTheme', ''));
+				$this->html->writeToElement('preview-theme', ob_get_clean());
 			}
 		}
 
@@ -354,6 +367,29 @@
 					hypha_setTheme($this->toSafeDir($_POST['dstTheme']));
 					$hyphaXml->saveAndUnlock();
 					notify('success', __('copied-theme-successful'));
+				}
+			}
+			return 'reload';
+		}
+
+		function previewTheme($argument) {
+			if (isAdmin()) {
+				// get list of existing themes
+				$themes = $this->getThemes();
+
+				$errors = [];
+				// validate srcTheme
+				if (!isset($_POST['previewTheme']) || '' == $_POST['previewTheme']) {
+					$errors[] = __('source-theme-name-required');
+				} elseif (!in_array($_POST['previewTheme'], $themes)) {
+					$errors[] = __('source-theme-name-not-found');
+				}
+				foreach ($errors as $error) notify('error', $error);
+				if (empty($errors)) {
+					session_start();
+					$_SESSION['previewTheme'] = $_POST['previewTheme'];
+					session_write_close();
+					notify('success', __('preview-theme-set-successful'));
 				}
 			}
 			return 'reload';
