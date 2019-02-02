@@ -694,6 +694,10 @@ th{
  flex-direction: row-reverse;
 }
 
+textarea{
+	font-family: 'Courier New', Courier, monospace;
+}
+
 /* Festival */
 .festivalTimetable, .festivalTimetable a {
 	color: white;
